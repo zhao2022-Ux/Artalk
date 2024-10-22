@@ -18,7 +18,7 @@ export default defineConfig([
     ...shared,
     outDir: 'dist',
     entry: ['src/plugin/main.ts'],
-    external: ['artalk', 'typescript', 'picocolors', '@microsoft/api-extractor'],
+    external: ['artalk', 'typescript', 'picocolors', '@microsoft/api-extractor', 'typescript-json-schema'],
     esbuildPlugins: [RawPlugin()],
   },
   {

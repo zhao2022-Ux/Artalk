@@ -395,6 +395,14 @@ auth:
     client_secret: ""
     domain: ""
 
+# 插件系统
+plugin:
+  # 启用插件系统
+  enabled: true
+  # 注册表 URL
+  # (默认注册表：https://artalk.js.org/plugins)
+  registry_url: https://artalk.js.org/plugins
+
 # 界面配置
 frontend:
   # 评论框占位文字

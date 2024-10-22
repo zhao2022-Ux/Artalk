@@ -5,6 +5,7 @@ import PagesIcon from '@/assets/nav-icon-pages.svg'
 import UsersIcon from '@/assets/nav-icon-users.svg'
 import SitesIcon from '@/assets/nav-icon-sites.svg'
 import TransferIcon from '@/assets/nav-icon-transfer.svg'
+import PluginsIcon from '@/assets/nav-icon-plugins.svg'
 import SettingsIcon from '@/assets/nav-icon-settings.svg'
 import { useUserStore } from '@/stores/user'
 import { useNavStore } from '@/stores/nav'
@@ -41,6 +42,12 @@ export const AdminPages: Record<string, PageItem> = {
     link: '/transfer',
     hideOnMobile: true,
     icon: TransferIcon,
+  },
+  plugins: {
+    label: 'plugins',
+    link: '/plugins',
+    hideOnMobile: true,
+    icon: PluginsIcon,
   },
   settings: {
     label: 'settings',

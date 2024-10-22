@@ -92,6 +92,7 @@ export const zhCN: MessageSchema = {
   logout: '退出登录',
   logoutConfirm: '确定要退出登录吗？',
   loginSelectHint: '请选择您要登录的账户：',
+  plugins: '插件',
 }
 
 export default zhCN

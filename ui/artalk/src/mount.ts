@@ -2,6 +2,7 @@ import { handleConfFormServer } from './config'
 import { DefaultPlugins } from './plugins'
 import { mergeDeep } from './lib/merge-deep'
 import { MountError } from './plugins/mount-error'
+import type { CommonPluginItem } from './api/v2'
 import type { ConfigPartial, ArtalkPlugin, Context } from '@/types'
 
 /**
@@ -50,8 +51,9 @@ export async function mount(localConf: ConfigPartial, ctx: Context) {
   ctx.updateConf(conf)
 
   // Load remote plugins
-  conf.pluginURLs &&
-    (await loadNetworkPlugins(conf.pluginURLs, ctx.getConf().server)
+  const remotePlugins = data.plugins || []
+  remotePlugins &&
+    (await loadNetworkPlugins(remotePlugins, ctx.getConf().server)
       .then((plugins) => {
         loadPlugins(plugins)
       })
@@ -63,32 +65,64 @@ export async function mount(localConf: ConfigPartial, ctx: Context) {
 /**
  * Dynamically load plugins from Network
  */
-async function loadNetworkPlugins(scripts: string[], apiBase: string): Promise<Set<ArtalkPlugin>> {
+async function loadNetworkPlugins(
+  plugins: CommonPluginItem[],
+  apiBase: string,
+): Promise<Set<ArtalkPlugin>> {
   const networkPlugins = new Set<ArtalkPlugin>()
-  if (!scripts || !Array.isArray(scripts)) return networkPlugins
+  if (!plugins || !Array.isArray(plugins)) return networkPlugins
 
   const tasks: Promise<void>[] = []
 
-  scripts.forEach((url) => {
+  const addPlugin = (targetPlugin: CommonPluginItem) => {
+    Object.entries(window.ArtalkPlugins || {}).forEach(([pluginName, plugin]) => {
+      if (typeof plugin !== 'function' || networkPlugins.has(plugin)) return
+
+      // Add plugin to list
+      networkPlugins.add(plugin)
+
+      // Parse plugin options
+      let options: any = {}
+      try {
+        options = JSON.parse(targetPlugin.options || '{}')
+      } catch (err) {
+        console.error(
+          `[artalk] Failed to parse plugin '${pluginName}' options: '${targetPlugin.options}'.`,
+          err,
+        )
+      }
+      PluginOptions.set(plugin, targetPlugin.options)
+    })
+  }
+
+  plugins.forEach((plugin) => {
+    if (!plugin.source) return
+
     // check url valid
-    if (!/^(http|https):\/\//.test(url))
-      url = `${apiBase.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
+    if (!/^(http|https):\/\//.test(plugin.source))
+      plugin.source = `${apiBase.replace(/\/$/, '')}/${plugin.source.replace(/^\//, '')}`
 
     tasks.push(
       new Promise<void>((resolve) => {
         // check if loaded
-        if (document.querySelector(`script[src="${url}"]`)) {
+        if (document.querySelector(`script[src="${plugin.source}"]`)) {
           resolve()
           return
         }
 
         // load script
         const script = document.createElement('script')
-        script.src = url
+        script.src = plugin.source
+        script.crossOrigin = 'anonymous'
+        if (plugin.integrity) script.integrity = plugin.integrity
+
         document.head.appendChild(script)
-        script.onload = () => resolve()
-        script.onerror = (err) => {
-          console.error('[artalk] Failed to load plugin', err)
+        script.onload = () => {
+          addPlugin(plugin)
+          resolve()
+        }
+        script.onerror = () => {
+          console.error(`[artalk] Failed to load plugin script from '${plugin.source}'.`)
           resolve()
         }
       }),
@@ -96,11 +130,6 @@ async function loadNetworkPlugins(scripts: string[], apiBase: string): Promise<S
   })
 
   await Promise.all(tasks)
-
-  // Read ArtalkPlugins object from window
-  Object.values(window.ArtalkPlugins || {}).forEach((plugin) => {
-    if (typeof plugin === 'function') networkPlugins.add(plugin)
-  })
 
   return networkPlugins
 }

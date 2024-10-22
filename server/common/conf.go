@@ -7,6 +7,7 @@ import (
 
 	"github.com/artalkjs/artalk/v2/internal/config"
 	"github.com/artalkjs/artalk/v2/internal/core"
+	"github.com/artalkjs/artalk/v2/internal/entity"
 	"github.com/artalkjs/artalk/v2/internal/utils"
 	"github.com/artalkjs/artalk/v2/server/middleware"
 	"github.com/gofiber/fiber/v2"
@@ -29,6 +30,7 @@ func GetApiVersionDataMap() ApiVersionData {
 
 type ConfData struct {
 	FrontendConf Map            `json:"frontend_conf"`
+	Plugins      []PluginItem   `json:"plugins"`
 	Version      ApiVersionData `json:"version"`
 }
 
@@ -52,31 +54,27 @@ func GetApiPublicConfDataMap(app *core.App, c *fiber.Ctx) ConfData {
 		frontendConf["locale"] = app.Conf().Locale
 	}
 
-	if _, ok := frontendConf["pluginURLs"].([]any); !ok {
-		frontendConf["pluginURLs"] = []any{}
-	}
-	pluginURLs := frontendConf["pluginURLs"].([]any)
+	customPluginURLsRaw := frontendConf["pluginURLs"].([]any)
+	customPluginURLs := lo.Map(customPluginURLsRaw, func(url any, _ int) string {
+		u, ok := url.(string)
+		if !ok {
+			return ""
+		}
+		return u
+	})
+	frontendConf["pluginURLs"] = []any{} // Cleared, only for forward compatibility
 
-	if app.Conf().Auth.Enabled {
-		pluginURLs = append(pluginURLs, "dist/plugins/artalk-plugin-auth.js")
-	}
-
-	if !slices.Contains([]string{"en", "zh-CN", ""}, app.Conf().Locale) {
-		pluginURLs = append(pluginURLs, fmt.Sprintf("dist/i18n/%s.js", app.Conf().Locale))
-	}
-
-	frontendConf["pluginURLs"] = handlePluginURLs(app,
-		lo.Map(pluginURLs, func(u any, _ int) string {
-			return strings.TrimSpace(fmt.Sprintf("%v", u))
-		}))
+	// Plugin system in Artalk v2.10.0+
+	// TODO: this is a db query, should be cached
 
 	return ConfData{
 		FrontendConf: frontendConf,
+		Plugins:      getEnabledPlugins(app, customPluginURLs),
 		Version:      GetApiVersionDataMap(),
 	}
 }
 
-func handlePluginURLs(app *core.App, urls []string) []string {
+func handleCustomPluginURLs(app *core.App, urls []string) []string {
 	return utils.RemoveDuplicates(lo.Filter(urls, func(u string, _ int) bool {
 		if strings.TrimSpace(u) == "" {
 			return false
@@ -89,4 +87,54 @@ func handlePluginURLs(app *core.App, urls []string) []string {
 		}
 		return false
 	}))
+}
+
+type PluginItem struct {
+	Source    string            `json:"source"`
+	Type      entity.PluginType `json:"type"`
+	Integrity string            `json:"integrity" validate:"optional"`
+	Options   string            `json:"options" validate:"optional"`
+}
+
+func getEnabledPlugins(app *core.App, customURLs []string) []PluginItem {
+	var plugins []PluginItem
+
+	// User plugins
+	if app.Conf().Plugin.Enabled {
+		var dbPlugins []entity.Plugin
+		app.Dao().DB().Where(&entity.Plugin{Enabled: true}).Find(&dbPlugins)
+
+		plugins = append(plugins, lo.Map(dbPlugins, func(plugin entity.Plugin, _ int) PluginItem {
+			return PluginItem{
+				Source:    plugin.Source,
+				Integrity: plugin.Integrity,
+				Type:      plugin.Type,
+			}
+		})...)
+
+		// Custom plugins
+		for _, url := range handleCustomPluginURLs(app, customURLs) {
+			plugins = append(plugins, PluginItem{
+				Source: url,
+				Type:   entity.PluginTypePlugin,
+			})
+		}
+	}
+
+	// Import internal plugins
+	if app.Conf().Auth.Enabled {
+		plugins = append(plugins, PluginItem{
+			Source: "dist/plugins/artalk-plugin-auth.js",
+			Type:   entity.PluginTypePlugin,
+		})
+	}
+
+	if !slices.Contains([]string{"en", "zh-CN", ""}, app.Conf().Locale) {
+		plugins = append(plugins, PluginItem{
+			Source: fmt.Sprintf("dist/i18n/%s.js", app.Conf().Locale),
+			Type:   entity.PluginTypePlugin,
+		})
+	}
+
+	return plugins
 }

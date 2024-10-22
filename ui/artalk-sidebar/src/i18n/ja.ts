@@ -95,6 +95,7 @@ export const ja: MessageSchema = {
   logout: 'ログアウト',
   logoutConfirm: 'ログアウトしてもよろしいですか？',
   loginSelectHint: 'ログインするアカウントを選択してください：',
+  plugins: 'プラグイン',
 }
 
 export default ja

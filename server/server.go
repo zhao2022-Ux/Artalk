@@ -150,6 +150,16 @@ func admin(app *core.App, api fiber.Router) {
 	h.SettingApply(app, api)
 	h.SettingTemplate(app, api)
 	h.Transfer(app, api)
+
+	if app.Conf().Plugin.Enabled {
+		h.PluginList(app, api)
+		h.PluginGet(app, api)
+		h.PluginInstall(app, api)
+		h.PluginUpgrade(app, api)
+		h.PluginUninstall(app, api)
+		h.PluginUpdate(app, api)
+		h.PluginRegistryUpdate(app, api)
+	}
 }
 
 func reqID(fb *fiber.App) {

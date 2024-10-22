@@ -24,6 +24,7 @@ export interface CommonApiVersionData {
 
 export interface CommonConfData {
   frontend_conf: CommonMap
+  plugins: CommonPluginItem[]
   version: CommonApiVersionData
 }
 
@@ -35,6 +36,13 @@ export interface CommonJSONResult {
 }
 
 export type CommonMap = Record<string, any>
+
+export interface CommonPluginItem {
+  integrity?: string
+  options?: string
+  source: string
+  type: EntityPluginType
+}
 
 export interface EntityCookedComment {
   badge_color: string
@@ -85,6 +93,32 @@ export interface EntityCookedPage {
   vote_up: number
 }
 
+export interface EntityCookedPlugin {
+  author_link: string
+  author_name: string
+  compatible: boolean
+  compatible_notice?: string
+  description: string
+  donate_link: string
+  enabled: boolean
+  id: string
+  installed: boolean
+  integrity: string
+  local_version: string
+  min_artalk_version: string
+  name: string
+  npm_name: string
+  options_schema: string
+  repo_link: string
+  repo_name: string
+  source: string
+  type: string
+  updated_at: string
+  upgrade_available: boolean
+  verified: boolean
+  version: string
+}
+
 export interface EntityCookedSite {
   first_url: string
   id: number
@@ -117,6 +151,11 @@ export interface EntityCookedUserForAdmin {
   link: string
   name: string
   receive_email: boolean
+}
+
+export enum EntityPluginType {
+  PluginTypePlugin = 'plugin',
+  PluginTypeTheme = 'theme',
 }
 
 export type HandlerMap = Record<string, any>
@@ -214,6 +253,21 @@ export interface HandlerParamsPageUpdate {
   /** Updated page title */
   title: string
 }
+
+export type HandlerParamsPluginInstall = object
+
+export type HandlerParamsPluginRegistryUpdate = object
+
+export type HandlerParamsPluginUninstall = object
+
+export interface HandlerParamsPluginUpdate {
+  /** The plugin client options (JSON string) */
+  client_options?: string
+  /** The plugin enabled status */
+  enabled: boolean
+}
+
+export type HandlerParamsPluginUpgrade = object
 
 export interface HandlerParamsSettingApply {
   /** The content of the config file in YAML format */
@@ -490,6 +544,28 @@ export interface HandlerResponsePageUpdate {
   url: string
   vote_down: number
   vote_up: number
+}
+
+export interface HandlerResponsePluginGet {
+  /** The plugin client options (JSON string) */
+  client_options: string
+  /** The plugin enabled status */
+  enabled: boolean
+  /** The plugin options schema (JSON string) */
+  options_schema: string
+  /** The plugin info */
+  plugin: EntityCookedPlugin
+}
+
+export interface HandlerResponsePluginList {
+  plugins: EntityCookedPlugin[]
+  plugins_count: number
+  themes: EntityCookedPlugin[]
+  themes_count: number
+}
+
+export interface HandlerResponsePluginUpdate {
+  plugin: EntityCookedPlugin
 }
 
 export interface HandlerResponseSettingGet {
@@ -1740,6 +1816,268 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       >({
         path: `/pages/${id}/fetch`,
         method: 'POST',
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+  }
+  pluginRegistry = {
+    /**
+ * @description Update the plugin registry data
+ *
+ * @tags Plugin
+ * @name UpdatePluginRegistry
+ * @summary Update Plugin Registry
+ * @request POST:/plugin_registry/update
+ * @secure
+ * @response `200` `HandlerMap` OK
+ * @response `400` `(HandlerMap & {
+    msg?: string,
+
+})` Bad Request
+ * @response `500` `(HandlerMap & {
+    msg?: string,
+
+})` Internal Server Error
+ */
+    updatePluginRegistry: (
+      options: HandlerParamsPluginRegistryUpdate,
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        HandlerMap,
+        HandlerMap & {
+          msg?: string
+        }
+      >({
+        path: `/plugin_registry/update`,
+        method: 'POST',
+        body: options,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+  }
+  plugins = {
+    /**
+ * @description Get a list of plugins by some conditions
+ *
+ * @tags Plugin
+ * @name GetPlugins
+ * @summary Get Plugin List
+ * @request GET:/plugins
+ * @secure
+ * @response `200` `HandlerResponsePluginList` OK
+ * @response `403` `(HandlerMap & {
+    msg?: string,
+
+})` Forbidden
+ */
+    getPlugins: (
+      query?: {
+        /** Only installed plugins */
+        only_installed?: boolean
+        /** Search keywords */
+        search?: string
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        HandlerResponsePluginList,
+        HandlerMap & {
+          msg?: string
+        }
+      >({
+        path: `/plugins`,
+        method: 'GET',
+        query: query,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+ * @description Get a plugin info by ID
+ *
+ * @tags Plugin
+ * @name GetPlugin
+ * @summary Get Plugin Info
+ * @request GET:/plugins/{plugin_id}
+ * @secure
+ * @response `200` `HandlerResponsePluginGet` OK
+ * @response `400` `(HandlerMap & {
+    msg?: string,
+
+})` Bad Request
+ * @response `500` `(HandlerMap & {
+    msg?: string,
+
+})` Internal Server Error
+ */
+    getPlugin: (pluginId: string, params: RequestParams = {}) =>
+      this.request<
+        HandlerResponsePluginGet,
+        HandlerMap & {
+          msg?: string
+        }
+      >({
+        path: `/plugins/${pluginId}`,
+        method: 'GET',
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+ * @description Update a plugin status by ID
+ *
+ * @tags Plugin
+ * @name UpdatePlugin
+ * @summary Update Plugin
+ * @request PUT:/plugins/{plugin_id}
+ * @secure
+ * @response `200` `HandlerResponsePluginUpdate` OK
+ * @response `400` `(HandlerMap & {
+    msg?: string,
+
+})` Bad Request
+ * @response `500` `(HandlerMap & {
+    msg?: string,
+
+})` Internal Server Error
+ */
+    updatePlugin: (
+      pluginId: string,
+      plugin: HandlerParamsPluginUpdate,
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        HandlerResponsePluginUpdate,
+        HandlerMap & {
+          msg?: string
+        }
+      >({
+        path: `/plugins/${pluginId}`,
+        method: 'PUT',
+        body: plugin,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+ * @description Install a plugin by ID
+ *
+ * @tags Plugin
+ * @name InstallPlugin
+ * @summary Install Plugin
+ * @request POST:/plugins/{plugin_id}/install
+ * @secure
+ * @response `200` `HandlerMap` OK
+ * @response `400` `(HandlerMap & {
+    msg?: string,
+
+})` Bad Request
+ * @response `500` `(HandlerMap & {
+    msg?: string,
+
+})` Internal Server Error
+ */
+    installPlugin: (
+      pluginId: string,
+      options: HandlerParamsPluginInstall,
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        HandlerMap,
+        HandlerMap & {
+          msg?: string
+        }
+      >({
+        path: `/plugins/${pluginId}/install`,
+        method: 'POST',
+        body: options,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+ * @description Uninstall a plugin by ID
+ *
+ * @tags Plugin
+ * @name UninstallPlugin
+ * @summary Uninstall Plugin
+ * @request POST:/plugins/{plugin_id}/uninstall
+ * @secure
+ * @response `200` `HandlerMap` OK
+ * @response `400` `(HandlerMap & {
+    msg?: string,
+
+})` Bad Request
+ * @response `500` `(HandlerMap & {
+    msg?: string,
+
+})` Internal Server Error
+ */
+    uninstallPlugin: (
+      pluginId: string,
+      options: HandlerParamsPluginUninstall,
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        HandlerMap,
+        HandlerMap & {
+          msg?: string
+        }
+      >({
+        path: `/plugins/${pluginId}/uninstall`,
+        method: 'POST',
+        body: options,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+ * @description Upgrade a plugin by ID
+ *
+ * @tags Plugin
+ * @name UpgradePlugin
+ * @summary Upgrade Plugin
+ * @request POST:/plugins/{plugin_id}/upgrade
+ * @secure
+ * @response `200` `HandlerMap` OK
+ * @response `400` `(HandlerMap & {
+    msg?: string,
+
+})` Bad Request
+ * @response `500` `(HandlerMap & {
+    msg?: string,
+
+})` Internal Server Error
+ */
+    upgradePlugin: (
+      pluginId: string,
+      options: HandlerParamsPluginUpgrade,
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        HandlerMap,
+        HandlerMap & {
+          msg?: string
+        }
+      >({
+        path: `/plugins/${pluginId}/upgrade`,
+        method: 'POST',
+        body: options,
         secure: true,
         type: ContentType.Json,
         format: 'json',

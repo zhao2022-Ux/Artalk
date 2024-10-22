@@ -1,0 +1,43 @@
+{
+  "plugins": [
+    {
+      "type": "plugin",
+      "id": "artalk-plugin-katex",
+      "name": "KaTeX Integration",
+      "description": "Render math formulas with KaTeX",
+      "author_name": "Artalk",
+      "author_link": "https://github.com/ArtalkJS/Artalk",
+      "donate_link": "https://buymeacoffee.com/artalk",
+      "repo_name": "ArtalkJS/Artalk",
+      "repo_link": "https://github.com/ArtalkJS/Artalk",
+      "npm_name": "@artalk/plugin-katex",
+      "verified": true,
+      "version": "0.2.4",
+      "source": "https://cdn.jsdelivr.net/npm/@artalk/plugin-katex@0.2.4/dist/artalk-plugin-katex.js",
+      "integrity": "sha512-MNVJlPUTE82JkhJ2Pb7HgoMiPOqXJQKjzAbnblEp/cABl1uhhTCt+3SBMaGKsVObrsIQi81VvXi5sglcWAVCKw==",
+      "options_schema": "http://localhost:23366/artalk-plugin-options.schema.json",
+      "updated_at": "2024-10-05T10:57:07.434Z",
+      "min_artalk_version": "2.9.1"
+    },
+    {
+      "type": "plugin",
+      "id": "artalk-plugin-auth",
+      "name": "Auth Plugin",
+      "description": "3rd party social login support",
+      "author_name": "Artalk",
+      "author_link": "https://github.com/ArtalkJS/Artalk",
+      "donate_link": "https://buymeacoffee.com/artalk",
+      "repo_name": "ArtalkJS/Artalk",
+      "repo_link": "https://github.com/ArtalkJS/Artalk",
+      "npm_name": "@artalk/plugin-auth",
+      "verified": true,
+      "version": "0.0.1",
+      "source": "https://cdn.jsdelivr.net/npm/@artalk/plugin-auth@0.0.1/dist/artalk-plugin-auth.js",
+      "integrity": "sha512-Jy9+gfQ1CFsqQjQMhNflhZaKgliGfd2kLNhuHoJufNjFdLtKC6egEjnapoK5xITGCo6SU6Rim5DaUvZXzMdt0g==",
+      "options_schema": "",
+      "updated_at": "2024-10-05T10:59:06.265Z",
+      "min_artalk_version": "2.9.1"
+    }
+  ],
+  "themes": []
+}

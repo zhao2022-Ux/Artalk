@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppDialog: typeof import('./src/components/AppDialog.vue')['default']
     AppHeader: typeof import('./src/components/AppHeader.vue')['default']
     AppNavigation: typeof import('./src/components/AppNavigation.vue')['default']
     AppNavigationDesktop: typeof import('./src/components/AppNavigationDesktop.vue')['default']
@@ -18,6 +19,7 @@ declare module 'vue' {
     LogTerminal: typeof import('./src/components/LogTerminal.vue')['default']
     PageEditor: typeof import('./src/components/PageEditor.vue')['default']
     Pagination: typeof import('./src/components/Pagination.vue')['default']
+    PluginOptionsEditor: typeof import('./src/components/PluginOptionsEditor.vue')['default']
     PreferenceArr: typeof import('./src/components/PreferenceArr.vue')['default']
     PreferenceGrp: typeof import('./src/components/PreferenceGrp.vue')['default']
     PreferenceItem: typeof import('./src/components/PreferenceItem.vue')['default']

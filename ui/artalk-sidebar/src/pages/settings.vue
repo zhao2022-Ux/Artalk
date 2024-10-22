@@ -18,11 +18,13 @@ onMounted(() => {
   nav.updateTabs({
     sites: 'site',
     transfer: 'transfer',
+    plugins: 'plugins',
   })
 
   watch(curtTab, (tab) => {
     if (tab === 'sites') router.replace('/sites')
     else if (tab === 'transfer') router.replace('/transfer')
+    else if (tab === 'plugins') router.replace('/plugins')
   })
 
   Promise.all([

@@ -3,6 +3,7 @@ package config
 //go:generate go run ./meta/gen --format go --locale en --pkg config -o ./cache.go
 
 import (
+	"cmp"
 	"fmt"
 	"os"
 	"path"
@@ -146,6 +147,9 @@ func (conf *Config) normalPatch() {
 		log.Warn("[SocialLogin] config `auth.callback` is not set, now it is: ", strconv.Quote(callbackURL))
 		conf.Auth.Callback = callbackURL
 	}
+
+	// Default plugin registry URL
+	conf.Plugin.RegistryURL = cmp.Or(conf.Plugin.RegistryURL, "https://artalk.js.org/plugins")
 }
 
 // 多语言配置修补

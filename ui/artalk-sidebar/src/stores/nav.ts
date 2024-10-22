@@ -82,6 +82,7 @@ export const useNavStore = defineStore('nav', () => {
 
   useRouter().beforeEach((to, from) => {
     isSearchEnabled.value = false
+    curtTab.value = ''
   })
 
   const isMobile = useMobileWidth()

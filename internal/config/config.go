@@ -30,6 +30,7 @@ type Config struct {
 	ImgUpload      ImgUploadConf          `koanf:"img_upload" json:"img_upload"`           // 图片上传
 	AdminNotify    AdminNotifyConf        `koanf:"admin_notify" json:"admin_notify"`       // 其他通知方式
 	Auth           AuthConf               `koanf:"auth" json:"auth"`                       // Social Login
+	Plugin         PluginConf             `koanf:"plugin" json:"plugin"`                   // Plugin system
 	Frontend       map[string]interface{} `koanf:"frontend" json:"frontend"`
 
 	// deprecated options
@@ -454,4 +455,9 @@ type AuthConf struct {
 		ClientSecret string `koanf:"client_secret" json:"client_secret"`
 		Domain       string `koanf:"domain" json:"domain"`
 	} `koanf:"auth0" json:"auth0"`
+}
+
+type PluginConf struct {
+	Enabled     bool   `koanf:"enabled" json:"enabled"`
+	RegistryURL string `koanf:"registry_url" json:"registry_url"`
 }

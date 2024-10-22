@@ -92,6 +92,7 @@ export const zhTW: MessageSchema = {
   logout: '登出',
   logoutConfirm: '確定要登出嗎？',
   loginSelectHint: '請選擇您要登入的帳號：',
+  plugins: '插件',
 }
 
 export default zhTW

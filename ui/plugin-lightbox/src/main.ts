@@ -7,15 +7,19 @@ const IMG_LINK_EL_CLASS = 'atk-lightbox-img'
 const IMG_LINK_EL_SEL = `.${IMG_LINK_EL_CLASS}`
 
 export interface ArtalkLightboxPluginOptions {
+  /** @ignore */
   lightGallery?: {
     lib?: () => Promise<any>
   }
+  /** @ignore */
   lightBox?: {
     lib?: () => Promise<any>
   }
+  /** @ignore */
   fancyBox?: {
     lib?: () => Promise<any>
   }
+  /** @ignore */
   photoSwipe?: {
     lib?: () => Promise<any>
     pswpModule?: () => Promise<any>

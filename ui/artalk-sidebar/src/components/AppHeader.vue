@@ -189,6 +189,10 @@ const logout = () => {
     width: 60px;
     height: 60px;
     margin-left: 10px;
+
+    @media (min-width: 1024px) {
+      display: none;
+    }
   }
 
   .dark-mode-toggle {

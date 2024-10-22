@@ -1944,6 +1944,547 @@ const docTemplate = `{
                 }
             }
         },
+        "/plugin_registry/update": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update the plugin registry data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Update Plugin Registry",
+                "operationId": "UpdatePluginRegistry",
+                "parameters": [
+                    {
+                        "description": "The options",
+                        "name": "options",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.ParamsPluginRegistryUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a list of plugins by some conditions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Get Plugin List",
+                "operationId": "GetPlugins",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Only installed plugins",
+                        "name": "only_installed",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search keywords",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ResponsePluginList"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/{plugin_id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a plugin info by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Get Plugin Info",
+                "operationId": "GetPlugin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The plugin ID",
+                        "name": "plugin_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ResponsePluginGet"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update a plugin status by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Update Plugin",
+                "operationId": "UpdatePlugin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The plugin ID",
+                        "name": "plugin_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The plugin status",
+                        "name": "plugin",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.ParamsPluginUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ResponsePluginUpdate"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/{plugin_id}/install": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Install a plugin by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Install Plugin",
+                "operationId": "InstallPlugin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The plugin ID",
+                        "name": "plugin_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The options",
+                        "name": "options",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.ParamsPluginInstall"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/{plugin_id}/uninstall": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Uninstall a plugin by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Uninstall Plugin",
+                "operationId": "UninstallPlugin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The plugin ID",
+                        "name": "plugin_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The options",
+                        "name": "options",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.ParamsPluginUninstall"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/{plugin_id}/upgrade": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Upgrade a plugin by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Upgrade Plugin",
+                "operationId": "UpgradePlugin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The plugin ID",
+                        "name": "plugin_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The options",
+                        "name": "options",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.ParamsPluginUpgrade"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Map"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/send_email": {
             "post": {
                 "security": [
@@ -3788,11 +4329,18 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "frontend_conf",
+                "plugins",
                 "version"
             ],
             "properties": {
                 "frontend_conf": {
                     "$ref": "#/definitions/common.Map"
+                },
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/common.PluginItem"
+                    }
                 },
                 "version": {
                     "$ref": "#/definitions/common.ApiVersionData"
@@ -3818,6 +4366,27 @@ const docTemplate = `{
         "common.Map": {
             "type": "object",
             "additionalProperties": true
+        },
+        "common.PluginItem": {
+            "type": "object",
+            "required": [
+                "source",
+                "type"
+            ],
+            "properties": {
+                "integrity": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/entity.PluginType"
+                }
+            }
         },
         "entity.CookedComment": {
             "type": "object",
@@ -4000,6 +4569,104 @@ const docTemplate = `{
                 }
             }
         },
+        "entity.CookedPlugin": {
+            "type": "object",
+            "required": [
+                "author_link",
+                "author_name",
+                "compatible",
+                "description",
+                "donate_link",
+                "enabled",
+                "id",
+                "installed",
+                "integrity",
+                "local_version",
+                "min_artalk_version",
+                "name",
+                "npm_name",
+                "options_schema",
+                "repo_link",
+                "repo_name",
+                "source",
+                "type",
+                "updated_at",
+                "upgrade_available",
+                "verified",
+                "version"
+            ],
+            "properties": {
+                "author_link": {
+                    "type": "string"
+                },
+                "author_name": {
+                    "type": "string"
+                },
+                "compatible": {
+                    "type": "boolean"
+                },
+                "compatible_notice": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "donate_link": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "installed": {
+                    "type": "boolean"
+                },
+                "integrity": {
+                    "type": "string"
+                },
+                "local_version": {
+                    "type": "string"
+                },
+                "min_artalk_version": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "npm_name": {
+                    "type": "string"
+                },
+                "options_schema": {
+                    "type": "string"
+                },
+                "repo_link": {
+                    "type": "string"
+                },
+                "repo_name": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "upgrade_available": {
+                    "type": "boolean"
+                },
+                "verified": {
+                    "type": "boolean"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.CookedSite": {
             "type": "object",
             "required": [
@@ -4123,6 +4790,17 @@ const docTemplate = `{
                     "type": "boolean"
                 }
             }
+        },
+        "entity.PluginType": {
+            "type": "string",
+            "enum": [
+                "plugin",
+                "theme"
+            ],
+            "x-enum-varnames": [
+                "PluginTypePlugin",
+                "PluginTypeTheme"
+            ]
         },
         "handler.Map": {
             "type": "object",
@@ -4344,6 +5022,34 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "handler.ParamsPluginInstall": {
+            "type": "object"
+        },
+        "handler.ParamsPluginRegistryUpdate": {
+            "type": "object"
+        },
+        "handler.ParamsPluginUninstall": {
+            "type": "object"
+        },
+        "handler.ParamsPluginUpdate": {
+            "type": "object",
+            "required": [
+                "enabled"
+            ],
+            "properties": {
+                "client_options": {
+                    "description": "The plugin client options (JSON string)",
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "The plugin enabled status",
+                    "type": "boolean"
+                }
+            }
+        },
+        "handler.ParamsPluginUpgrade": {
+            "type": "object"
         },
         "handler.ParamsSettingApply": {
             "type": "object",
@@ -5178,6 +5884,77 @@ const docTemplate = `{
                 },
                 "vote_up": {
                     "type": "integer"
+                }
+            }
+        },
+        "handler.ResponsePluginGet": {
+            "type": "object",
+            "required": [
+                "client_options",
+                "enabled",
+                "options_schema",
+                "plugin"
+            ],
+            "properties": {
+                "client_options": {
+                    "description": "The plugin client options (JSON string)",
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "The plugin enabled status",
+                    "type": "boolean"
+                },
+                "options_schema": {
+                    "description": "The plugin options schema (JSON string)",
+                    "type": "string"
+                },
+                "plugin": {
+                    "description": "The plugin info",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/entity.CookedPlugin"
+                        }
+                    ]
+                }
+            }
+        },
+        "handler.ResponsePluginList": {
+            "type": "object",
+            "required": [
+                "plugins",
+                "plugins_count",
+                "themes",
+                "themes_count"
+            ],
+            "properties": {
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.CookedPlugin"
+                    }
+                },
+                "plugins_count": {
+                    "type": "integer"
+                },
+                "themes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.CookedPlugin"
+                    }
+                },
+                "themes_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handler.ResponsePluginUpdate": {
+            "type": "object",
+            "required": [
+                "plugin"
+            ],
+            "properties": {
+                "plugin": {
+                    "$ref": "#/definitions/entity.CookedPlugin"
                 }
             }
         },

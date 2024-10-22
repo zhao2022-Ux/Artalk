@@ -12,6 +12,7 @@ import logger from './logger'
 import { generateDts, rollupDeclarationFiles } from './dts'
 import { runPackageExportsLint } from './lint/package-exports-lint'
 import { ViteArtalkPluginKitCtx } from './context'
+import { buildOptionsSchema } from './options-schema'
 
 const tsRE = /\.(m|c)?tsx?$/
 const dtsRE = /\.d\.ts$/
@@ -21,6 +22,11 @@ export interface ViteArtalkPluginKitOptions {
    * The options for Artalk instance initialization in the dev page.
    */
   artalkInitOptions?: ConfigPartial
+
+  /**
+   * Enable schema generation for Artalk plugin options.
+   */
+  buildOptionsSchema?: boolean
 }
 
 export const ViteArtalkPluginKit = (opts: ViteArtalkPluginKitOptions = {}): Plugin => {
@@ -246,6 +252,15 @@ export const ViteArtalkPluginKit = (opts: ViteArtalkPluginKitOptions = {}): Plug
       }
 
       logger.info(`Generate dts files successfully!`)
+
+      if (opts.buildOptionsSchema !== false) {
+        buildOptionsSchema({
+          dtsPath: distDtsPath,
+          outDir: ctx.outDir,
+        })
+
+        logger.info(`Generate plugin options schema successfully!`)
+      }
     },
   }
 }

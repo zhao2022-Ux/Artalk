@@ -32,10 +32,15 @@ definitions:
     properties:
       frontend_conf:
         $ref: '#/definitions/common.Map'
+      plugins:
+        items:
+          $ref: '#/definitions/common.PluginItem'
+        type: array
       version:
         $ref: '#/definitions/common.ApiVersionData'
     required:
     - frontend_conf
+    - plugins
     - version
     type: object
   common.JSONResult:
@@ -51,6 +56,20 @@ definitions:
     type: object
   common.Map:
     additionalProperties: true
+    type: object
+  common.PluginItem:
+    properties:
+      integrity:
+        type: string
+      options:
+        type: string
+      source:
+        type: string
+      type:
+        $ref: '#/definitions/entity.PluginType'
+    required:
+    - source
+    - type
     type: object
   entity.CookedComment:
     properties:
@@ -184,6 +203,78 @@ definitions:
     - vote_down
     - vote_up
     type: object
+  entity.CookedPlugin:
+    properties:
+      author_link:
+        type: string
+      author_name:
+        type: string
+      compatible:
+        type: boolean
+      compatible_notice:
+        type: string
+      description:
+        type: string
+      donate_link:
+        type: string
+      enabled:
+        type: boolean
+      id:
+        type: string
+      installed:
+        type: boolean
+      integrity:
+        type: string
+      local_version:
+        type: string
+      min_artalk_version:
+        type: string
+      name:
+        type: string
+      npm_name:
+        type: string
+      options_schema:
+        type: string
+      repo_link:
+        type: string
+      repo_name:
+        type: string
+      source:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+      upgrade_available:
+        type: boolean
+      verified:
+        type: boolean
+      version:
+        type: string
+    required:
+    - author_link
+    - author_name
+    - compatible
+    - description
+    - donate_link
+    - enabled
+    - id
+    - installed
+    - integrity
+    - local_version
+    - min_artalk_version
+    - name
+    - npm_name
+    - options_schema
+    - repo_link
+    - repo_name
+    - source
+    - type
+    - updated_at
+    - upgrade_available
+    - verified
+    - version
+    type: object
   entity.CookedSite:
     properties:
       first_url:
@@ -273,6 +364,14 @@ definitions:
     - name
     - receive_email
     type: object
+  entity.PluginType:
+    enum:
+    - plugin
+    - theme
+    type: string
+    x-enum-varnames:
+    - PluginTypePlugin
+    - PluginTypeTheme
   handler.Map:
     additionalProperties: true
     type: object
@@ -434,6 +533,25 @@ definitions:
     - key
     - site_name
     - title
+    type: object
+  handler.ParamsPluginInstall:
+    type: object
+  handler.ParamsPluginRegistryUpdate:
+    type: object
+  handler.ParamsPluginUninstall:
+    type: object
+  handler.ParamsPluginUpdate:
+    properties:
+      client_options:
+        description: The plugin client options (JSON string)
+        type: string
+      enabled:
+        description: The plugin enabled status
+        type: boolean
+    required:
+    - enabled
+    type: object
+  handler.ParamsPluginUpgrade:
     type: object
   handler.ParamsSettingApply:
     properties:
@@ -1023,6 +1141,54 @@ definitions:
     - url
     - vote_down
     - vote_up
+    type: object
+  handler.ResponsePluginGet:
+    properties:
+      client_options:
+        description: The plugin client options (JSON string)
+        type: string
+      enabled:
+        description: The plugin enabled status
+        type: boolean
+      options_schema:
+        description: The plugin options schema (JSON string)
+        type: string
+      plugin:
+        allOf:
+        - $ref: '#/definitions/entity.CookedPlugin'
+        description: The plugin info
+    required:
+    - client_options
+    - enabled
+    - options_schema
+    - plugin
+    type: object
+  handler.ResponsePluginList:
+    properties:
+      plugins:
+        items:
+          $ref: '#/definitions/entity.CookedPlugin'
+        type: array
+      plugins_count:
+        type: integer
+      themes:
+        items:
+          $ref: '#/definitions/entity.CookedPlugin'
+        type: array
+      themes_count:
+        type: integer
+    required:
+    - plugins
+    - plugins_count
+    - themes
+    - themes_count
+    type: object
+  handler.ResponsePluginUpdate:
+    properties:
+      plugin:
+        $ref: '#/definitions/entity.CookedPlugin'
+    required:
+    - plugin
     type: object
   handler.ResponseSettingGet:
     properties:
@@ -2396,6 +2562,318 @@ paths:
       summary: Increase Page Views (PV)
       tags:
       - Page
+  /plugin_registry/update:
+    post:
+      consumes:
+      - application/json
+      description: Update the plugin registry data
+      operationId: UpdatePluginRegistry
+      parameters:
+      - description: The options
+        in: body
+        name: options
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ParamsPluginRegistryUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Map'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Update Plugin Registry
+      tags:
+      - Plugin
+  /plugins:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of plugins by some conditions
+      operationId: GetPlugins
+      parameters:
+      - description: Only installed plugins
+        in: query
+        name: only_installed
+        type: boolean
+      - description: Search keywords
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponsePluginList'
+        "403":
+          description: Forbidden
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get Plugin List
+      tags:
+      - Plugin
+  /plugins/{plugin_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a plugin info by ID
+      operationId: GetPlugin
+      parameters:
+      - description: The plugin ID
+        in: path
+        name: plugin_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponsePluginGet'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get Plugin Info
+      tags:
+      - Plugin
+    put:
+      consumes:
+      - application/json
+      description: Update a plugin status by ID
+      operationId: UpdatePlugin
+      parameters:
+      - description: The plugin ID
+        in: path
+        name: plugin_id
+        required: true
+        type: string
+      - description: The plugin status
+        in: body
+        name: plugin
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ParamsPluginUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ResponsePluginUpdate'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Update Plugin
+      tags:
+      - Plugin
+  /plugins/{plugin_id}/install:
+    post:
+      consumes:
+      - application/json
+      description: Install a plugin by ID
+      operationId: InstallPlugin
+      parameters:
+      - description: The plugin ID
+        in: path
+        name: plugin_id
+        required: true
+        type: string
+      - description: The options
+        in: body
+        name: options
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ParamsPluginInstall'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Map'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Install Plugin
+      tags:
+      - Plugin
+  /plugins/{plugin_id}/uninstall:
+    post:
+      consumes:
+      - application/json
+      description: Uninstall a plugin by ID
+      operationId: UninstallPlugin
+      parameters:
+      - description: The plugin ID
+        in: path
+        name: plugin_id
+        required: true
+        type: string
+      - description: The options
+        in: body
+        name: options
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ParamsPluginUninstall'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Map'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Uninstall Plugin
+      tags:
+      - Plugin
+  /plugins/{plugin_id}/upgrade:
+    post:
+      consumes:
+      - application/json
+      description: Upgrade a plugin by ID
+      operationId: UpgradePlugin
+      parameters:
+      - description: The plugin ID
+        in: path
+        name: plugin_id
+        required: true
+        type: string
+      - description: The options
+        in: body
+        name: options
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ParamsPluginUpgrade'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Map'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Map'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Upgrade Plugin
+      tags:
+      - Plugin
   /send_email:
     post:
       consumes:
